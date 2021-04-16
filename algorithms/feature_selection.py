@@ -46,7 +46,7 @@ def mutual_information(x, y):
         y_given_x = np.array([])
         for i in indices:
             y_given_x = np.append(y_given_x, y[i])
-        H_given += entropy(y_given_x)
+        H_given += ((len(indices)/x.shape[0])*entropy(y_given_x))
     return entropy(y) - H_given
 
 def select_best_features(n, X, y):
@@ -70,6 +70,7 @@ def select_best_features(n, X, y):
     best_features = []
     for i in range(n):
         best_features.append(I_hash[I[i]])
-    return X[:,best_features]
+    
+    return (best_features, X[:,best_features])
 
 
