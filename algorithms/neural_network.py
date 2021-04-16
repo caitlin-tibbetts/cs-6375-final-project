@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def init_params(layers):
+def init(layers):
     """Initializes all of the weights and biases for each layer of the neural network
 
     Args:
@@ -10,10 +10,10 @@ def init_params(layers):
     Returns:
         Dict: Each entry is the weights and biases of the nodes given the layer
     """
-    W, b = [], []
+    W, b = np.array([]), np.array([])
     for i in range(1, len(layers)):
-        W[i] = np.random.randn(layers[i], layers[i - 1]) * 0.01
-        b[i] = np.random.randn(layers[i], 1) * 0.01
+        W = np.append(W, np.random.randn(layers[i], layers[i - 1]) * 0.01)
+        b = np.append(b, np.random.randn(layers[i], 1) * 0.01)
     return W, b
 
 
@@ -41,18 +41,18 @@ def forward_propagation(
         return forward_propagation(activation(input), W, b, activation, cur_layer + 1)
 
 
-# THIS IS NOT WORKING
-def compute_cost(X, y):
+def compute_cost(X, y, W, b):
     """Computing the cost of a run through the neural network
 
     Args:
         X (np.array): Features of the dataset
         y (np.array): Classes of the dataset
-
+        W (np.array): Weights of every node connection in the neural network.
+        b (np.array): Biases of every layer in the neural network.
     Returns:
         float: The cost of the current neural network parameters
     """
-    y_pred = forward_propagation(X.T, init_params([X.shape[1], 5, 2, 1]))
+    y_pred = forward_propagation(X.T, W, b)
     # Calulate the mean-squared error
     cost = (1 / (2 * len(y))) * np.sum(np.square(y_pred - y))
     return cost
@@ -95,10 +95,34 @@ def backward_propagation(
         )
 
     if cur_layer == 1:
-        W_grads[cur_layer] = 1 / len(y) * np.dot(dZ, X_train.T)
-        b_grads[cur_layer] = 1 / len(y) * np.sum(dZ, axis=1, keepdims=True)
+        W_grads[cur_layer] = 1 / len(y) * np.dot(dA, X_train.T)
+        b_grads[cur_layer] = 1 / len(y) * np.sum(dA, axis=1, keepdims=True)
         return W_grads, b_grads
     else:
-        W_grads[cur_layer] = 1 / len(y) * np.dot(dZ, A[cur_layer - 1].T)
-        b_grads[cur_layer] = 1 / len(y) * np.sum(dZ, axis=1, keepdims=True)
+        W_grads[cur_layer] = 1 / len(y) * np.dot(dA, A[cur_layer - 1].T)
+        b_grads[cur_layer] = 1 / len(y) * np.sum(dA, axis=1, keepdims=True)
         return backward_propagation(X, y, W, b, A, dA, W_grads, b_grads, cur_layer - 1)
+
+
+def update(W, b, W_grads, b_grads, learning_rate):
+    layers = len(W)//2
+    W_updated = np.array([])
+    b_updated = np.array([])
+    for i in range(1,layers+1):
+        W_updated[i] = W[i] - learning_rate * W_grads[i]
+        b_updated[i] = b[i] - learning_rate * b_grads[i]
+    return W_updated, b_updated
+
+def predict(X, W, b):
+    values = forward_propagation(X.T, W, b)
+    return A[len(values)//2].T
+
+def model(X_train, y_train, layers, num_iters, learning_rate):
+    W, b = init(layers)
+    for i in range(num_iters):
+        y_pred = forward_propagation(X_train.T, W, b)
+        cost = compute_cost(y_train.T, W, b)
+        W_grads, b_grads = backward_propagation(X_train.T, y_train.T, W, b, y_pred.T)
+        params = update(W, b, W_grads, b_grads, learning_rate)
+        print('Cost at iteration ' + str(i+1) + ' = ' + str(cost) + '\n')
+    return W, b
