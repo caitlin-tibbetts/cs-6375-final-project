@@ -1,4 +1,5 @@
 import numpy as np
+from itertools import permutations, combinations
 
 from sklearn.datasets import load_breast_cancer
 from sklearn.model_selection import train_test_split
@@ -14,8 +15,10 @@ from sklearn.ensemble import (
     AdaBoostClassifier,
 )
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.neural_network import MLPClassifier
+from sklearn.svm import SVC
 
-from algorithms import neural_network, decision_tree, feature_selection
+from algorithms import k_nearest_neighbors, feature_selection
 
 
 def generate_report_sklearn(classifier, X_train, y_train, X_test, y_test):
@@ -41,6 +44,8 @@ if __name__ == "__main__":
     X = M[1:, 0:-1]
     y = M[1:, -1]
 
+    print(f"Labels: {set(y)}")
+
     best_features, X = feature_selection.select_best_features(7, X, y)
     print(headers[best_features])
 
@@ -56,6 +61,53 @@ if __name__ == "__main__":
     print(f1)
     print(confusion_matrix)
 
-    W, b = neural_network.model(X_train, y_train, [X_train.shape[1], 5, 5, 1], 100, 0.1)
-    y_pred = neural_network.predict(X_test, W, b)
-    print(accuracy_score(y_test, y_pred))
+    """ Find best layer sizes
+    layer_sizes = [2,3,4,5]
+    all_possible_orientations = []
+    for i in range(1,4):
+        coms = combinations(layer_sizes, i)
+        for l in coms:
+            perms = permutations(l, i)
+            for p in perms:
+                all_possible_orientations.append(list(perms))
+    all_possible_orientations = [item for sublist in all_possible_orientations for item in sublist]
+        
+    for layers in all_possible_orientations:
+        print(layers)
+        classifier = MLPClassifier(solver='lbfgs', alpha=1e-5, hidden_layer_sizes=layers, random_state=1, max_iter=1000)
+        test_acc, f1, confusion_matrix = generate_report_sklearn(
+            classifier, X_train, y_train, X_test, y_test
+        )
+        print(test_acc)
+        print(f1)
+        #print(confusion_matrix)
+    """
+
+    classifier = MLPClassifier(hidden_layer_sizes=(4, 3), max_iter=1500)
+    test_acc, f1, confusion_matrix = generate_report_sklearn(
+        classifier, X_train, y_train, X_test, y_test
+    )
+    print(test_acc)
+    print(f1)
+    print(confusion_matrix)
+
+    classifier = SVC(kernel="poly")
+    test_acc, f1, confusion_matrix = generate_report_sklearn(
+        classifier, X_train, y_train, X_test, y_test
+    )
+    print(test_acc)
+    print(f1)
+    print(confusion_matrix)
+
+    y_pred = [
+        k_nearest_neighbors.predict(X_train, y_train, len(set(y)) + 1, X_test[i])
+        for i in range(X_test.shape[0])
+    ]
+    test_acc, f1, confusion_matrix = (
+        accuracy_score(y_test, y_pred),
+        f1_score(y_test, y_pred, average="weighted"),
+        multilabel_confusion_matrix(y_test, y_pred),
+    )
+    print(test_acc)
+    print(f1)
+    print(confusion_matrix)
