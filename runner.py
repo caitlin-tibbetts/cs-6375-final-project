@@ -98,8 +98,23 @@ if __name__ == "__main__":
     print(f1)
     print(confusion_matrix)
 
+    """ Find best value for k
+    for n in range(1,X.shape[0]):
+        print(n)
+        y_pred = [
+            k_nearest_neighbors.predict(X_train, y_train, n, X_test[i])
+            for i in range(X_test.shape[0])
+        ]
+        test_acc, f1, confusion_matrix = (
+            accuracy_score(y_test, y_pred),
+            f1_score(y_test, y_pred, average="weighted"),
+            multilabel_confusion_matrix(y_test, y_pred),
+        )
+        print(test_acc)
+    """
+    
     y_pred = [
-        k_nearest_neighbors.predict(X_train, y_train, len(set(y)) + 1, X_test[i])
+        k_nearest_neighbors.predict(X_train, y_train, 40, X_test[i])
         for i in range(X_test.shape[0])
     ]
     test_acc, f1, confusion_matrix = (
