@@ -47,7 +47,6 @@ if __name__ == "__main__":
     print(f"Labels: {set(y)}")
 
     best_features, X = feature_selection.select_best_features(7, X, y)
-    print(headers[best_features])
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
