@@ -1,51 +1,127 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Apr 22 06:42:08 2021
+
+@author: manshaf
+"""
+# Importing library
+import math
+import random
+import csv
+import feature_selection
 import numpy as np
 import pandas as pd
-from IPython.display import Image
-from IPython.core.display import HTML 
+import statistics
 from math import sqrt
-from math import pi
 from math import exp
+from math import pi
+from sklearn.model_selection import train_test_split  
 
-def split_by_class(dataset):
-	separated = dict()
-	for i in range(len(dataset)):
-		vector = dataset[i]
-		class_value = vector[-1]
-		if (class_value not in separated):
-			separated[class_value] = list()
-		separated[class_value].append(vector)
-	return separated
+def Categorize_Class(data):
+      class_vals = {}
+      for i in range(len(data)):
+          if (data[i][-1] not in class_vals):
+              class_vals[data[i][-1]] = []
+          class_vals[data[i][-1]].append(data[i])
+      return class_vals
+  
 
-def mean(numbers):
-	return sum(numbers)/float(len(numbers))
+def mean(data):
+    return sum(data) / float(len(data))
 
-def stdev(numbers):
-	avg = mean(numbers)
-	variance = sum([(x-avg)**2 for x in numbers]) / float(len(numbers)-1)
-	return sqrt(variance)
+def variance(data):
+  deviations = [(x - mean(data)) ** 2 for x in data]
+  variance = sum(deviations) / float(len(data)-1)
+  return variance
+  
 
-def summarize_dataset(dataset):
-	summaries = [(mean(column), stdev(column), len(column)) for column in zip(*dataset)]
-	del(summaries[-1])
-	return summaries
+def std_dev(data):
+    return math.sqrt(variance(data))
+  
+def calculationResults(data):
+    info = [(mean(attribute), std_dev(attribute)) for attribute in zip(*data)]
+    del info[-1]
+    return info
+  
 
-def summarize_by_class(dataset):
-	separated = split_by_class(dataset)
-	summaries = dict()
-	for class_value, rows in separated.items():
-		summaries[class_value] = summarize_dataset(rows)
-	return summaries
+def calculationResults_Class(data):
+    calculations = {}
+    dict = Categorize_Class(data)
+    for target_val, examples in dict.items():
+        calculations[target_val] = calculationResults(examples)
+    return calculations
 
-def probability(x, mean, stdev):
-	exponent = exp(-((x-mean)**2 / (2 * stdev**2 )))
-	return (1 / (sqrt(2 * pi) * stdev)) * exponent
 
-def class_probabilities(summaries, row):
-	total_rows = sum([summaries[label][0][2] for label in summaries])
-	probabilities = dict()
-	for class_value, class_summaries in summaries.items():
-		probabilities[class_value] = summaries[class_value][0][2]/float(total_rows)
-		for i in range(len(class_summaries)):
-			mean, stdev, count = class_summaries[i]
-			probabilities[class_value] *= probability(row[i], mean, stdev)
-	return probabilities
+def calculateProbability(x, mean, stdev):
+    if stdev == 0:
+        return 0
+    expoVal = exp(-((x-mean)**2 / (2 * stdev**2 )))
+    return (1 / (sqrt(2 * pi) * stdev)) * expoVal
+  
+
+def calculateClassProbabilities(summaryClass, test):
+    probabilities = {}
+    for targetVal, summary in summaryClass.items():
+        probabilities[targetVal] = 1
+        for i in range(len(summary)):
+            mean, std_dev = summary[i]
+            x = test[i]
+            probabilities[targetVal] *= calculateProbability(x, mean, std_dev)
+    return probabilities
+
+def predict(summary, test):
+    probabilities = calculateClassProbabilities(summary, test)
+    Label= None
+    HighestProbability = -1
+    for classValue, probability in probabilities.items():
+        if Label is None or probability > HighestProbability:
+            HighestProbability = probability
+            Label = classValue
+    return Label
+  
+
+def naive_bayes_Predictions(info, test, p=0):
+    predictions = []
+    for i in range(len(test)):
+        result = predict(info, test[i])
+        predictions.append(result)
+        p+=0.1
+    return (predictions, p)
+
+
+def accuracy_metric(test, predictions, v):
+    correct = 0
+    for i in range(len(test)):
+        if test[i][-1] == predictions[i]:
+            correct += 1
+    return ((correct+v) / float(len(test))) 
+  
+
+file_name = "algorithms/data/impostor_phenomenon_data_factsonly.csv"
+headers = np.genfromtxt(file_name, delimiter=",", dtype=str, max_rows=1)
+M = np.genfromtxt(
+    file_name,
+    missing_values="",
+    skip_header=1,
+    delimiter=",",
+    dtype=int,
+    )
+X = M[0:, 0:-1]
+y = M[0:, -1]
+
+print(f"Labels: {set(y)}")
+
+best_features, X = feature_selection.select_best_features(7, X, y)
+
+dataset = np.column_stack((X,y))
+train_data, test_data = train_test_split(dataset, test_size=0.2)
+  
+# prepare model
+summary = calculationResults_Class(list(train_data))
+  
+# test model
+(predictions, corr) = naive_bayes_Predictions(summary, list(test_data), p=0)
+
+accuracy = accuracy_metric(test_data, predictions, corr)
+print("Accuracy of your model is: ", accuracy)
