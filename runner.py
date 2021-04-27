@@ -18,7 +18,7 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.svm import SVC
 
-from algorithms import k_nearest_neighbors, feature_selection
+from algorithms import k_nearest_neighbors, feature_selection, naive_bayes
 
 
 def generate_report_sklearn(classifier, X_train, y_train, X_test, y_test):
@@ -125,3 +125,26 @@ if __name__ == "__main__":
     print(test_acc)
     print(f1)
     print(confusion_matrix)
+    
+    '''
+    Naïve Bayes Classifier
+    '''
+    
+    dataset = np.column_stack((X,y))
+    train_data, test_data = train_test_split(dataset, test_size=0.2)
+
+    summary = calculationResults_Class(list(train_data))
+  
+
+    (predictions, corr) = naive_bayes_Predictions(summary, list(test_data), p=0)
+
+    accuracy = accuracy_metric(test_data, predictions, corr)
+    print("Accuracy of your model is: ", accuracy)
+    
+    f1, confusion_matrix = (
+        f1_score(y_test, predictions, average="weighted"),
+        multilabel_confusion_matrix(y_test, y_pred),
+    )
+    print("Accuracy: ", accuracy)
+    print("f1_score: ", f1)
+    print("Confusion Matrix: ", confusion_matrix)
