@@ -50,6 +50,8 @@ if __name__ == "__main__":
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
+    print("AdaBoostClassifier")
+
     classifier = AdaBoostClassifier(
         n_estimators=20, base_estimator=DecisionTreeClassifier(max_depth=1)
     )
@@ -82,6 +84,8 @@ if __name__ == "__main__":
         #print(confusion_matrix)
     """
 
+    print("MLPClassifier")
+
     classifier = MLPClassifier(hidden_layer_sizes=(4, 3), max_iter=1500)
     test_acc, f1, confusion_matrix = generate_report_sklearn(
         classifier, X_train, y_train, X_test, y_test
@@ -89,6 +93,8 @@ if __name__ == "__main__":
     print(test_acc)
     print(f1)
     print(confusion_matrix)
+
+    print("SVC")
 
     classifier = SVC(kernel="poly")
     test_acc, f1, confusion_matrix = generate_report_sklearn(
@@ -112,6 +118,8 @@ if __name__ == "__main__":
         )
         print(test_acc)
     """
+
+    print("K-Nearest-Neighbors")
     
     y_pred = [
         k_nearest_neighbors.predict(X_train, y_train, 40, X_test[i])
@@ -126,23 +134,18 @@ if __name__ == "__main__":
     print(f1)
     print(confusion_matrix)
     
-    '''
-    Naïve Bayes Classifier
-    '''
+    print("Naive Bayes Classifier")
+
+    model = naive_bayes.fit(X_train, y_train)
     
-    dataset = np.column_stack((X,y))
-    train_data, test_data = train_test_split(dataset, test_size=0.2)
-
-    summary = calculationResults_Class(list(train_data))
-  
-
-    (predictions, corr) = naive_bayes_Predictions(summary, list(test_data), p=0)
-
-    accuracy = accuracy_metric(test_data, predictions, corr)
-    print("Accuracy of your model is: ", accuracy)
+    y_pred = [
+        naive_bayes.predict(model, X_test[i])
+        for i in range(X_test.shape[0])
+    ]
     
-    f1, confusion_matrix = (
-        f1_score(y_test, predictions, average="weighted"),
+    accuracy, f1, confusion_matrix = (
+        accuracy_score(y_test, y_pred),
+        f1_score(y_test, y_pred, average="weighted"),
         multilabel_confusion_matrix(y_test, y_pred),
     )
     print("Accuracy: ", accuracy)
