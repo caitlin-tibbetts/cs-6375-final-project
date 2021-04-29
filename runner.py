@@ -50,17 +50,18 @@ if __name__ == "__main__":
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
-    print("AdaBoostClassifier")
-
     classifier = AdaBoostClassifier(
         n_estimators=20, base_estimator=DecisionTreeClassifier(max_depth=1)
     )
     test_acc, f1, confusion_matrix = generate_report_sklearn(
         classifier, X_train, y_train, X_test, y_test
     )
-    print(test_acc)
-    print(f1)
-    print(confusion_matrix)
+    
+    print("\n------------------------------------------------------------------")
+    print("Adaboost Decision Tree Classifier: \n\n")
+    print("Accuracy: ", test_acc)
+    print("\nF1 Score: ", f1)
+    print("\nConfusion Matrix: \n", confusion_matrix)
 
     """ Find best layer sizes
     layer_sizes = [2,3,4,5]
@@ -84,25 +85,27 @@ if __name__ == "__main__":
         #print(confusion_matrix)
     """
 
-    print("MLPClassifier")
-
     classifier = MLPClassifier(hidden_layer_sizes=(4, 3), max_iter=1500)
     test_acc, f1, confusion_matrix = generate_report_sklearn(
         classifier, X_train, y_train, X_test, y_test
     )
-    print(test_acc)
-    print(f1)
-    print(confusion_matrix)
-
-    print("SVC")
-
+    
+    print("\n------------------------------------------------------------------")
+    print("Neural Network Classifier: \n\n")
+    print("Accuracy: ", test_acc)
+    print("\nF1 Score: ", f1)
+    print("\nConfusion Matrix: \n", confusion_matrix)
+    
     classifier = SVC(kernel="poly")
     test_acc, f1, confusion_matrix = generate_report_sklearn(
         classifier, X_train, y_train, X_test, y_test
     )
-    print(test_acc)
-    print(f1)
-    print(confusion_matrix)
+    
+    print("\n------------------------------------------------------------------")
+    print("Support Vector Machine with Polynomial Kernel: \n\n")
+    print("Accuracy: ", test_acc)
+    print("\nF1 Score: ", f1)
+    print("\nConfusion Matrix: \n", confusion_matrix)
 
     """ Find best value for k
     for n in range(1,X.shape[0]):
@@ -118,8 +121,6 @@ if __name__ == "__main__":
         )
         print(test_acc)
     """
-
-    print("K-Nearest-Neighbors")
     
     y_pred = [
         k_nearest_neighbors.predict(X_train, y_train, 40, X_test[i])
@@ -130,11 +131,12 @@ if __name__ == "__main__":
         f1_score(y_test, y_pred, average="weighted"),
         multilabel_confusion_matrix(y_test, y_pred),
     )
-    print(test_acc)
-    print(f1)
-    print(confusion_matrix)
     
-    print("Naive Bayes Classifier")
+    print("\n------------------------------------------------------------------")
+    print("K-Nearest Neighbors: \n\n")
+    print("Accuracy: ", test_acc)
+    print("\nF1 Score: ", f1)
+    print("\nConfusion Matrix: \n", confusion_matrix)
 
     model = naive_bayes.fit(X_train, y_train)
     
@@ -143,11 +145,14 @@ if __name__ == "__main__":
         for i in range(X_test.shape[0])
     ]
     
-    accuracy, f1, confusion_matrix = (
+    test_acc, f1, confusion_matrix = (
         accuracy_score(y_test, y_pred),
         f1_score(y_test, y_pred, average="weighted"),
         multilabel_confusion_matrix(y_test, y_pred),
     )
-    print("Accuracy: ", accuracy)
-    print("f1_score: ", f1)
-    print("Confusion Matrix: ", confusion_matrix)
+
+    print("\n------------------------------------------------------------------")
+    print("Naive Bayes: \n\n")
+    print("Accuracy: ", test_acc)
+    print("\nF1 Score: ", f1)
+    print("\nConfusion Matrix: \n", confusion_matrix)

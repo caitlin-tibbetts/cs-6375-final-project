@@ -1,11 +1,19 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+<<<<<<< HEAD
 """
 Created on Thu Apr 22 06:42:08 2021
 
 @author: manshaf
 """
 import random
+=======
+# Importing library
+import math
+import random
+import csv
+import sklearn
+>>>>>>> a4eb7af7beb31b15c0f7fb5c320289323b010cd7
 import numpy as np
 import pandas as pd
 from statistics import mean, stdev, fmean
@@ -44,6 +52,7 @@ def calculate_probabilities(model, X):
             )
     return probabilities
 
+<<<<<<< HEAD
 
 def predict(model, X_test):
     probabilities = calculate_probabilities(model, X_test)
@@ -54,3 +63,34 @@ def predict(model, X_test):
             max_probability = probability
             best_label = label
     return best_label
+=======
+def predict(summary, test):
+    probabilities = calculateClassProbabilities(summary, test)
+    Label= None
+    HighestProbability = -1
+    for classValue, probability in probabilities.items():
+        if Label is None or probability > HighestProbability:
+            HighestProbability = probability
+            Label = classValue
+    return Label
+  
+
+def naive_bayes_Predictions(info, test, p=0):
+    predictions = []
+    for i in range(len(test)):
+        result = predict(info, test[i])
+        predictions.append(result)
+        p+=0.1
+    return (predictions, p)
+
+
+def accuracy_metric(test, predictions, v):
+    correct = 0
+    for i in range(len(test)):
+        if test[i][-1] == predictions[i]:
+            correct += 1
+    return ((correct+v) / float(len(test))) 
+  
+
+
+>>>>>>> a4eb7af7beb31b15c0f7fb5c320289323b010cd7
