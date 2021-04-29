@@ -50,15 +50,24 @@ if __name__ == "__main__":
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
+
+    """
+    
+    Adaboost Decision Tree Classifier
+    
+    """
     classifier = AdaBoostClassifier(
         n_estimators=20, base_estimator=DecisionTreeClassifier(max_depth=1)
     )
     test_acc, f1, confusion_matrix = generate_report_sklearn(
         classifier, X_train, y_train, X_test, y_test
     )
-    print(test_acc)
-    print(f1)
-    print(confusion_matrix)
+    
+    print("\n------------------------------------------------------------------")
+    print("Adaboost Decision Tree Classifier: \n\n")
+    print("Accuracy: ", test_acc)
+    print("\nF1 Score: ", f1)
+    print("\nConfusion Matrix: \n", confusion_matrix)
 
     """ Find best layer sizes
     layer_sizes = [2,3,4,5]
@@ -81,22 +90,40 @@ if __name__ == "__main__":
         print(f1)
         #print(confusion_matrix)
     """
-
+    
+    """
+    
+    Neural Network Classifier
+    
+    """
     classifier = MLPClassifier(hidden_layer_sizes=(4, 3), max_iter=1500)
     test_acc, f1, confusion_matrix = generate_report_sklearn(
         classifier, X_train, y_train, X_test, y_test
     )
-    print(test_acc)
-    print(f1)
-    print(confusion_matrix)
+    
+    print("\n------------------------------------------------------------------")
+    print("Neural Network Classifier: \n\n")
+    print("Accuracy: ", test_acc)
+    print("\nF1 Score: ", f1)
+    print("\nConfusion Matrix: \n", confusion_matrix)
+    
+    
+    """
+    
+    Support Vector Machine Classifier
+    
+    """
 
     classifier = SVC(kernel="poly")
     test_acc, f1, confusion_matrix = generate_report_sklearn(
         classifier, X_train, y_train, X_test, y_test
     )
-    print(test_acc)
-    print(f1)
-    print(confusion_matrix)
+    
+    print("\n------------------------------------------------------------------")
+    print("Support Vector Machine with Polynomial Kernel: \n\n")
+    print("Accuracy: ", test_acc)
+    print("\nF1 Score: ", f1)
+    print("\nConfusion Matrix: \n", confusion_matrix)
 
     """ Find best value for k
     for n in range(1,X.shape[0]):
@@ -113,6 +140,12 @@ if __name__ == "__main__":
         print(test_acc)
     """
     
+    """
+    
+    K-Nearest Neigbors
+    
+    """
+    
     y_pred = [
         k_nearest_neighbors.predict(X_train, y_train, 40, X_test[i])
         for i in range(X_test.shape[0])
@@ -122,9 +155,12 @@ if __name__ == "__main__":
         f1_score(y_test, y_pred, average="weighted"),
         multilabel_confusion_matrix(y_test, y_pred),
     )
-    print(test_acc)
-    print(f1)
-    print(confusion_matrix)
+    
+    print("\n------------------------------------------------------------------")
+    print("K-Nearest Neighbors: \n\n")
+    print("Accuracy: ", test_acc)
+    print("\nF1 Score: ", f1)
+    print("\nConfusion Matrix: \n", confusion_matrix)
     
     '''
     Naïve Bayes Classifier
@@ -133,18 +169,21 @@ if __name__ == "__main__":
     dataset = np.column_stack((X,y))
     train_data, test_data = train_test_split(dataset, test_size=0.2)
 
-    summary = calculationResults_Class(list(train_data))
+    summary = naive_bayes.calculationResults_Class(list(train_data))
   
 
-    (predictions, corr) = naive_bayes_Predictions(summary, list(test_data), p=0)
+    (predictions, corr) = naive_bayes.naive_bayes_Predictions(summary, list(test_data), p=0)
 
-    accuracy = accuracy_metric(test_data, predictions, corr)
+    accuracy = naive_bayes.accuracy_metric(test_data, predictions, corr)
     print("Accuracy of your model is: ", accuracy)
     
     f1, confusion_matrix = (
         f1_score(y_test, predictions, average="weighted"),
         multilabel_confusion_matrix(y_test, y_pred),
     )
+    
+    print("\n------------------------------------------------------------------")
+    print("Naïve Bayes Classifier: \n\n")
     print("Accuracy: ", accuracy)
-    print("f1_score: ", f1)
-    print("Confusion Matrix: ", confusion_matrix)
+    print("\nF1 score: ", f1)
+    print("\nConfusion Matrix: \n", confusion_matrix)
