@@ -1,15 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Thu Apr 22 06:42:08 2021
-
-@author: manshaf
-"""
 # Importing library
 import math
 import random
 import csv
-import feature_selection
+import sklearn
 import numpy as np
 import pandas as pd
 import statistics
@@ -98,30 +93,4 @@ def accuracy_metric(test, predictions, v):
     return ((correct+v) / float(len(test))) 
   
 
-file_name = "algorithms/data/impostor_phenomenon_data_factsonly.csv"
-headers = np.genfromtxt(file_name, delimiter=",", dtype=str, max_rows=1)
-M = np.genfromtxt(
-    file_name,
-    missing_values="",
-    skip_header=1,
-    delimiter=",",
-    dtype=int,
-    )
-X = M[0:, 0:-1]
-y = M[0:, -1]
 
-print(f"Labels: {set(y)}")
-
-best_features, X = feature_selection.select_best_features(7, X, y)
-
-dataset = np.column_stack((X,y))
-train_data, test_data = train_test_split(dataset, test_size=0.2)
-  
-# prepare model
-summary = calculationResults_Class(list(train_data))
-  
-# test model
-(predictions, corr) = naive_bayes_Predictions(summary, list(test_data), p=0)
-
-accuracy = accuracy_metric(test_data, predictions, corr)
-print("Accuracy of your model is: ", accuracy)
